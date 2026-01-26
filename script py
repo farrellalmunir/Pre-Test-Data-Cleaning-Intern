@@ -1,0 +1,69 @@
+import pandas as pd
+
+file_path = "intern.xlsx"
+
+raw_df = pd.read_excel(
+    file_path,
+    sheet_name=0,
+    header=None
+)
+
+raw_df = raw_df[raw_df[0].str.match(r"\d{2}-\d{2}-\d{4}", na=False)]
+
+df_split = raw_df[0].str.split(";", expand=True)
+
+df_split.columns = [
+    "Date",
+    "Customer Name",
+    "Product Code",
+    "Product Description",
+    "Quantity"
+]
+
+
+df_split["Date"] = pd.to_datetime(
+    df_split["Date"],
+    format="%d-%m-%Y",
+    errors="coerce"
+).dt.date 
+
+df_split["Quantity"] = pd.to_numeric(
+    df_split["Quantity"],
+    errors="coerce"
+)
+
+price_df = pd.read_excel(
+    file_path,
+    sheet_name=1
+)
+
+price_df.columns = ["Product Code", "Harga Jual"]
+
+price_df["Harga Jual"] = (
+    price_df["Harga Jual"]
+    .astype(str)
+    .str.replace(".", "", regex=False)
+    .str.replace(" ", "", regex=False)
+    .astype(float)
+)
+
+
+final_df = df_split.merge(
+    price_df,
+    on="Product Code",
+    how="left"
+)
+
+
+final_df["Total Harga Jual"] = (
+    final_df["Quantity"] * final_df["Harga Jual"])
+
+output_path = r"C:\Users\accry\OneDrive\Desktop\dokumensales.xlsx"
+
+final_df.to_excel(
+    output_path,
+    index=False,
+    sheet_name="Hasil"
+)
+
+print("Sudah terekspor", output_path)
