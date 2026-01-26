@@ -1,2 +1,2 @@
-# Pre-Test-Data-Cleaning-Intern
-python script
+Pre test Take Home Intern Merck
+Pembersihan data menggunakan script Python
